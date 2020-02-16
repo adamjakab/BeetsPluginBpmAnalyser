@@ -33,6 +33,7 @@ class BpmAnalyserPlugin(BeetsPlugin):
             'dry-run': False,
             'write': True,
             'threads': cpu_count(),
+            'force': False,
             'quiet': False
         })
 
@@ -50,6 +51,7 @@ class BpmAnayserCommand(Subcommand):
     cfg_dry_run = False
     cfg_write = True
     cfg_threads = 1
+    cfg_force = False
     cfg_quiet = False
 
     analyser_script_path = None
@@ -61,6 +63,7 @@ class BpmAnayserCommand(Subcommand):
         self.cfg_dry_run = self.config.get("dry-run")
         self.cfg_write = self.config.get("write")
         self.cfg_threads = self.config.get("threads")
+        self.cfg_force = self.config.get("force")
         self.cfg_quiet = self.config.get("quiet")
 
         self.analyser_script_path = os.path.dirname(os.path.realpath(__file__)) + "/get_song_bpm.py"
@@ -86,6 +89,12 @@ class BpmAnayserCommand(Subcommand):
         )
 
         self.parser.add_option(
+            '-f', '--force',
+            action='store_true', dest='force', default=self.cfg_force,
+            help=u'[default: {}] force analysis of items with non-zero bpm values'.format(self.cfg_force)
+        )
+
+        self.parser.add_option(
             '-q', '--quiet',
             action='store_true', dest='quiet', default=self.cfg_quiet,
             help=u'[default: {}] mute all output'.format(self.cfg_quiet)
@@ -102,6 +111,7 @@ class BpmAnayserCommand(Subcommand):
         self.cfg_dry_run = options.dryrun
         self.cfg_write = options.write
         self.cfg_threads = options.threads
+        self.cfg_force = options.force
         self.cfg_quiet = options.quiet
 
         self.lib = lib
@@ -112,10 +122,12 @@ class BpmAnayserCommand(Subcommand):
     def analyse_songs(self):
         # Setup the query
         query = self.query
-        query_element = "bpm:0"
-        query.append(query_element)
+        if not self.cfg_force:
+            query_element = "bpm:0"
+            query.append(query_element)
 
         # Get the library items
+        # @todo: implement a limit option so that user can decide to do only a imited number of items per run
         items = self.lib.items(self.query)
 
         def analyse(item):

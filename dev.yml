@@ -11,4 +11,5 @@ format_item: "[format:$format][bpm:$bpm] ::: $path"
 #    dry-run: no
 #    write: yes
 #    threads: 2
+#    force: no
 #    quiet: no
