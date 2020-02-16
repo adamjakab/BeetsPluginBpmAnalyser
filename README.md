@@ -1,3 +1,6 @@
+[![PyPi](https://img.shields.io/pypi/v/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
+
+
 # BPM Analyser (beets plugin)
 
 *A [beets](https://github.com/beetbox/beets) plugin for insane obsessive-compulsive music geeks.*
