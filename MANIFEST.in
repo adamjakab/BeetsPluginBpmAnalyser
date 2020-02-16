@@ -1,0 +1,2 @@
+prune test
+include LICENSE.txt README.md
