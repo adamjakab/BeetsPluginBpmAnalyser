@@ -147,7 +147,7 @@ class BpmAnayserCommand(Subcommand):
         self.execute_on_items(items, analyse, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
-        proc = Popen([self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
+        proc = Popen(['python', self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
         bpm = int(stdout.decode("utf-8"))
         # @todo: log error messages from external script
