@@ -16,7 +16,7 @@ setup(
     packages=['beetsplug'],
 
     install_requires=[
-        'beets>=1.4.9',
+        'beets>=1.4.3',
         'numpy',
         'aubio'
     ],
