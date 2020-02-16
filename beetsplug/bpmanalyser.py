@@ -23,29 +23,6 @@ from concurrent import futures
 # Module methods
 log = logging.getLogger('beets.bpmanalyser')
 
-def _analyse_tempo(item_path):
-    sample_rate, win_s, hop_s = 44100, 1024, 512
-    s = source(item_path, sample_rate, hop_s)
-    sample_rate = s.samplerate
-    o = tempo("default", win_s, hop_s, sample_rate)
-
-    beats = []
-    total_frames = 0
-    while True:
-        samples, read = s()
-        is_beat = o(samples)
-        if is_beat:
-            this_beat = o.get_last_s()
-            beats.append(this_beat)
-        total_frames += read
-        if read < hop_s:
-            break
-
-    bpms = 60.0 / diff(beats)
-
-    bpm = median(bpms)
-
-    return int(bpm)
 
 # Classes ###
 class BpmAnalyserPlugin(BeetsPlugin):
@@ -72,9 +49,9 @@ class BpmAnayserCommand(Subcommand):
     def __init__(self, cfg):
         self.config = cfg.flatten()
         # self.threads = cpu_count()
-        self.analyser_script_path = os.path.dirname(os.path.realpath(__file__)) + "/aubio_song_tempo_anayser.py"
+        self.analyser_script_path = os.path.dirname(os.path.realpath(__file__)) + "/get_song_bpm.py"
 
-        self.parser = OptionParser(usage='%prog training_name [options] [ADDITIONAL_QUERY...]')
+        self.parser = OptionParser(usage='%prog training_name [options] [QUERY...]')
 
         self.parser.add_option(
             '-q', '--quiet',
@@ -106,19 +83,6 @@ class BpmAnayserCommand(Subcommand):
         # Get the library items
         items = self.lib.items(self.query)
 
-        # for item in items:
-        #     item_path = item.get("path").decode("utf-8")
-        #     log.debug("Analysing[{0}]...".format(item_path))
-        #
-        #     bpm = int(self.get_bpm_from_analyser_script(item_path))
-        #     self._say("Song[{0}] bpm: {1}".format(item_path, bpm))
-        #
-        #     if bpm != 0:
-        #         item['bpm'] = bpm
-        #         if self.write_to_file:
-        #             item.try_write()
-        #         item.store()
-
         def analyse(item):
             item_path = item.get("path").decode("utf-8")
             log.debug("Analysing[{0}]...".format(item_path))
@@ -136,9 +100,7 @@ class BpmAnayserCommand(Subcommand):
         self.execute_with_progress(analyse, items, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
-        # the aubio/ffmpeg can have a really ugly output on sterr so we execute it in a subprocess:
-        # [mp3float @ 0x7fb4c89eaa00] Could not update timestamps for skipped samples.
-        # [mp3float @ 0x7fb4c89eaa00] Could not update timestamps for discarded samples.
+
 
         # self._say("SCRIPT:: {}".format(self.analyser_script_path))
         proc = Popen([self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)

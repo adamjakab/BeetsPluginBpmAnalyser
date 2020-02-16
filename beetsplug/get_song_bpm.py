@@ -6,10 +6,15 @@
 #  Created: 2/16/20, 10:50 AM
 #  License: See LICENSE.txt
 #
+# The aubio/ffmpeg can produce some really ugly output on stderr:
+# [mp3float @ 0x...] Could not update timestamps for skipped samples.
+# [mp3float @ 0x...] Could not update timestamps for discarded samples.
 
+import os
 import sys
-from numpy import diff, median
+
 from aubio import source, tempo
+from numpy import diff, median
 
 
 def _analyse_tempo(item_path):
@@ -37,7 +42,14 @@ def _analyse_tempo(item_path):
     return int(bpm)
 
 
-if len(sys.argv) == 2:
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        raise RuntimeError("Usage: python get_song_bpm.py song_path")
+
     file_name = sys.argv[1]
+
+    if not os.path.isfile(file_name):
+        raise RuntimeError("Song not found.")
+
     bpm = _analyse_tempo(file_name)
     print(bpm)
