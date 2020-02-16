@@ -1,4 +1,4 @@
-# BPM Anayser (beets plugin)
+# BPM Analyser (beets plugin)
 
 ## Installation
 The plugin can be installed via:
