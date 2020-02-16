@@ -53,23 +53,7 @@ Apart from `auto` all the other configuration options can also be set from the c
 - quiet [-q, --quiet]: Do not display any output from the command.
 
 ## Development Notes 
-Read the [plugin development](https://beets.readthedocs.io/en/stable/dev/plugins.html) section.
-
-Take care of dependencies:
-```shell script
-$ pip install numpy, aubio
-```
-
-Clone the repository as described above in the installation section.
-
-Add the path of the 'beetsplug' folder:
-```yaml
-pluginpath:
-  - /path/to/folder/beetsplug/
-  # [...]
-```
-
-If you need a custom configuration while developing you can make use of the included `dev.yml` file by using `beet -c dev.yml [CMD]`.
+Read the [development](./DEVELOPMENT.md) docs.
 
 ## Acknowledgements
 Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to start on this plugin. 
