@@ -35,9 +35,14 @@ $ twine upload dist/*
 
 ## Links and Resources
 
-[Girhub Repository](https://github.com/adamjakab/BeetsPluginBpmAnalyser)
+[Github Repository](https://github.com/adamjakab/BeetsPluginBpmAnalyser)
 
 The PyPi project base is [here](https://pypi.org/project/beets-bpmanalyser/).
 
 [PyPi Publishing docs](https://realpython.com/pypi-publish-python-package/).
 
+[Beets Docs](https://beets.readthedocs.io/en/stable/reference/index.html)
+
+[Beets Wiki](https://github.com/beetbox/beets/wiki)
+
+[Beets forum](https://discourse.beets.io/)
