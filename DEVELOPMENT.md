@@ -27,8 +27,7 @@ I guess this is mostly for me:
 
 ```shell script
 $ bumpversion --current-version 1.0.0 minor setup.py
-$ rm -rf {build|dist}/*
-$ python setup.py sdist bdist_wheel
+$ rm -rf {build,dist}/* && python setup.py sdist bdist_wheel
 $ twine check dist/*
 $ twine upload dist/*
 ```

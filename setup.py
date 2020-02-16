@@ -23,7 +23,7 @@ setup(
 
     test_suite='test',
 
-    packages=['beetsplug'],
+    packages=['beetsplug', 'beetsplug.bpmanalyser_utils'],
 
     install_requires=[
         'beets>=1.4.3',
