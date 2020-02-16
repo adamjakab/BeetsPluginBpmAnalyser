@@ -5,8 +5,7 @@
 #  License: See LICENSE.txt
 #
 
-from numpy import diff, median
-from aubio import source, tempo
+
 import os
 import logging
 from optparse import OptionParser

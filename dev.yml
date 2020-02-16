@@ -1,10 +1,8 @@
 # DEVELOPMENT CONFIGURATION OVERLAY
 # USAGE: beet -c dev.yml config -p
 
-_format_item: "[format:$format][bpm:$bpm] ::: $artist - $album - $title"
+#format_item: "[format:$format][bpm:$bpm] ::: $artist - $album - $title"
 format_item: "[format:$format][bpm:$bpm] ::: $path"
-
-
 
 #bpmanalyser:
 #    auto: no
