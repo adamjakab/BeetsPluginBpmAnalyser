@@ -4,17 +4,11 @@
 #  Created: 2/16/20, 8:27 PM
 #  License: See LICENSE.txt
 #
-#  Author: Adam Jakab <adam at jakab dot pro>
-#  Created: 2/16/20, 10:50 AM
-#  License: See LICENSE.txt
-#
-
 
 import os
 import logging
 from optparse import OptionParser
 
-# import beets
 from beets.library import Library as BeatsLibrary
 from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand, decargs
@@ -72,7 +66,7 @@ class BpmAnayserCommand(Subcommand):
 
         module_path = os.path.dirname(bpm_analyser_utils.__file__)
         self.analyser_script_path = module_path + "/get_song_bpm.py"
-        self._say("SCRIPT PATH: {}".format(self.analyser_script_path))
+        log.debug("External script path: {}".format(self.analyser_script_path))
         if not os.path.isfile(self.analyser_script_path):
             raise FileNotFoundError("Analyser script not found!")
 
