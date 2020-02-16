@@ -1,17 +1,32 @@
 # Going Running (beets plugin)
 
+### Installation
+Take care of dependencies:
+
+```shell script
+$ pip install numpy, aubio
+```
+
+Clone the repository (working on pip...).
+
+
 ### Development Notes 
-Notes for myself for [plugin development](https://beets.readthedocs.io/en/stable/dev/plugins.html):
+Read the [plugin development](https://beets.readthedocs.io/en/stable/dev/plugins.html) section.
 
-```bash
-export PYTHONPATH=~/Documents/Projects/Python/BeetPluginVariousArtists
-beet -c goingrunning.yml version
-````
+Add the path of the 'beetsplug' folder to your configuration and activate the plugin:
 
-### Dependencies
+```yaml
+pluginpath:
+    - /path/to/folder/beetsplug/
+    - ...
 
-pip install numpy, aubio
+plugins:
+    - bpmanalyser
+    - ...
+```
 
-### Thanks
-to https://github.com/geigerzaehler/beets-check 
-for future
+Check if plugin is loaded with `beet version`. It should list 'bpmanalyser' amongst the loaded plugins.
+
+
+### Acknowledgements
+Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to start on this plugin. 
