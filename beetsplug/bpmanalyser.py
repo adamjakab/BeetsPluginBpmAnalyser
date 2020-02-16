@@ -28,7 +28,13 @@ log = logging.getLogger('beets.bpmanalyser')
 class BpmAnalyserPlugin(BeetsPlugin):
     def __init__(self):
         super(BpmAnalyserPlugin, self).__init__()
-        self.config.add({})
+        self.config.add({
+            'auto': False,
+            'dry-run': False,
+            'write': True,
+            'threads': cpu_count(),
+            'quiet': False
+        })
 
     def commands(self):
         return [BpmAnayserCommand(self.config)]
@@ -40,23 +46,49 @@ class BpmAnayserCommand(Subcommand):
     query = None
     parser = None
 
-    analyser_script_path = None
+    cfg_auto = False
+    cfg_dry_run = False
+    cfg_write = True
+    cfg_threads = 1
+    cfg_quiet = False
 
-    write_to_file = True
-    quiet = False
-    threads = 1
+    analyser_script_path = None
 
     def __init__(self, cfg):
         self.config = cfg.flatten()
-        # self.threads = cpu_count()
+
+        self.cfg_auto = self.config.get("auto")
+        self.cfg_dry_run = self.config.get("dry-run")
+        self.cfg_write = self.config.get("write")
+        self.cfg_threads = self.config.get("threads")
+        self.cfg_quiet = self.config.get("quiet")
+
         self.analyser_script_path = os.path.dirname(os.path.realpath(__file__)) + "/get_song_bpm.py"
 
         self.parser = OptionParser(usage='%prog training_name [options] [QUERY...]')
 
         self.parser.add_option(
+            '-d', '--dry-run',
+            action='store_true', dest='dryrun', default=self.cfg_dry_run,
+            help=u'[default: {}] display the bpm values but do not update the library items'.format(self.cfg_dry_run)
+        )
+
+        self.parser.add_option(
+            '-w', '--write',
+            action='store_true', dest='write', default=self.cfg_write,
+            help=u'[default: {}] write the bpm values to the media files'.format(self.cfg_write)
+        )
+
+        self.parser.add_option(
+            '-t', '--threads',
+            action='store', dest='threads', default=self.cfg_threads,
+            help=u'[default: {}] the number of threads to run in parallel'.format(self.cfg_threads)
+        )
+
+        self.parser.add_option(
             '-q', '--quiet',
-            action='store_true', dest='quiet', default=False,
-            help=u'keep quiet'
+            action='store_true', dest='quiet', default=self.cfg_quiet,
+            help=u'[default: {}] mute all output'.format(self.cfg_quiet)
         )
 
         # Keep this at the end
@@ -67,10 +99,13 @@ class BpmAnayserCommand(Subcommand):
         )
 
     def func(self, lib: BeatsLibrary, options, arguments):
-        self.quiet = options.quiet
+        self.cfg_dry_run = options.dryrun
+        self.cfg_write = options.write
+        self.cfg_threads = options.threads
+        self.cfg_quiet = options.quiet
+
         self.lib = lib
-        arguments = decargs(arguments)
-        self.query = arguments
+        self.query = decargs(arguments)
 
         self.analyse_songs()
 
@@ -88,47 +123,37 @@ class BpmAnayserCommand(Subcommand):
             log.debug("Analysing[{0}]...".format(item_path))
 
             bpm = int(self.get_bpm_from_analyser_script(item_path))
-            # bpm = _analyse_tempo(item_path)
+
             self._say("Song[{0}] bpm: {1}".format(item_path, bpm))
 
-            if bpm != 0:
-                item['bpm'] = bpm
-                if self.write_to_file:
-                    item.try_write()
-                item.store()
+            if not self.cfg_dry_run:
+                if bpm != 0:
+                    item['bpm'] = bpm
+                    if self.cfg_write:
+                        item.try_write()
+                    item.store()
 
-        self.execute_with_progress(analyse, items, msg='Analysing tempo...')
+        self.execute_on_items(items, analyse, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
-
-
-        # self._say("SCRIPT:: {}".format(self.analyser_script_path))
         proc = Popen([self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
         bpm = int(stdout.decode("utf-8"))
+        # @todo: log error messages from external script
         # self._say("O: {}".format(stdout.decode("utf-8")))
         # self._say("E: {}".format(stderr.decode("utf-8")))
-
         return bpm
 
-    def execute_with_progress(self, func, args, msg=None):
-        """Run `func` for each value in the iterator `args` in a thread pool.
-
-        When the function has finished it logs the progress and the `msg`.
-        """
-        total = len(args)
+    def execute_on_items(self, items, func, msg=None):
+        total = len(items)
         finished = 0
-        with futures.ThreadPoolExecutor(max_workers=self.threads) as e:
-            for _ in e.map(func, args):
+        with futures.ThreadPoolExecutor(max_workers=self.cfg_threads) as e:
+            for _ in e.map(func, items):
                 finished += 1
-                self.log_progress(msg, finished, total)
-
-    def log_progress(self, msg, index, total):
-        msg = u'{}: {}/{} [{}%]'.format(msg, index, total, index*100/total)
-        self._say(msg)
+                # @create and show a progress bar (--progress-only option)
 
     def _say(self, msg):
-        if not self.quiet:
+        if not self.cfg_quiet:
             log.info(msg)
         else:
             log.debug(msg)

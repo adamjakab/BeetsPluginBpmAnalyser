@@ -4,6 +4,11 @@
 _format_item: "[format:$format][bpm:$bpm] ::: $artist - $album - $title"
 format_item: "[format:$format][bpm:$bpm] ::: $path"
 
-bpmanalyser:
-  quiet: yes
 
+
+#bpmanalyser:
+#    auto: no
+#    dry-run: no
+#    write: yes
+#    threads: 2
+#    quiet: no
