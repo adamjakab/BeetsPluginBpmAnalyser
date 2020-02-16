@@ -1,6 +1,10 @@
 #  Copyright: Copyright (c) 2020., Adam Jakab
 #
 #  Author: Adam Jakab <adam at jakab dot pro>
+#  Created: 2/16/20, 8:27 PM
+#  License: See LICENSE.txt
+#
+#  Author: Adam Jakab <adam at jakab dot pro>
 #  Created: 2/16/20, 10:50 AM
 #  License: See LICENSE.txt
 #
@@ -11,13 +15,14 @@ import logging
 from optparse import OptionParser
 
 # import beets
-from beets import config as beets_global_config
 from beets.library import Library as BeatsLibrary
 from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand, decargs
 from beets.util import cpu_count
 from subprocess import Popen, PIPE
 from concurrent import futures
+
+import beetsplug.bpmanalyser_utils as bpm_analyser_utils
 
 # Module methods
 log = logging.getLogger('beets.bpmanalyser')
@@ -65,7 +70,11 @@ class BpmAnayserCommand(Subcommand):
         self.cfg_force = self.config.get("force")
         self.cfg_quiet = self.config.get("quiet")
 
-        self.analyser_script_path = os.path.dirname(os.path.realpath(__file__)) + "/get_song_bpm.py"
+        module_path = os.path.dirname(bpm_analyser_utils.__file__)
+        self.analyser_script_path = module_path + "/get_song_bpm.py"
+        self._say("SCRIPT PATH: {}".format(self.analyser_script_path))
+        if not os.path.isfile(self.analyser_script_path):
+            raise FileNotFoundError("Analyser script not found!")
 
         self.parser = OptionParser(usage='%prog training_name [options] [QUERY...]')
 
@@ -147,12 +156,18 @@ class BpmAnayserCommand(Subcommand):
         self.execute_on_items(items, analyse, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
+        log.debug("calling external script: {}".format(self.analyser_script_path))
+
         proc = Popen(['python', self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
-        bpm = int(stdout.decode("utf-8"))
-        # @todo: log error messages from external script
-        # self._say("O: {}".format(stdout.decode("utf-8")))
-        # self._say("E: {}".format(stderr.decode("utf-8")))
+
+        log.debug("External script error output: {}".format(stderr.decode("utf-8")))
+
+        try:
+            bpm = int(stdout.decode("utf-8"))
+        except ValueError:
+            bpm = 0
+
         return bpm
 
     def execute_on_items(self, items, func, msg=None):

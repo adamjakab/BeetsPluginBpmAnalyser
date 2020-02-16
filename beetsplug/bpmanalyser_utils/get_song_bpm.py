@@ -35,9 +35,7 @@ def _analyse_tempo(item_path):
 
     bpms = 60.0 / diff(beats)
 
-    bpm = median(bpms)
-
-    return int(bpm)
+    return int(median(bpms))
 
 
 if __name__ == '__main__':
