@@ -70,7 +70,7 @@ class BpmAnayserCommand(Subcommand):
         if not os.path.isfile(self.analyser_script_path):
             raise FileNotFoundError("Analyser script not found!")
 
-        self.parser = OptionParser(usage='%prog training_name [options] [QUERY...]')
+        self.parser = OptionParser(usage='%prog [options] [QUERY...]')
 
         self.parser.add_option(
             '-d', '--dry-run',
