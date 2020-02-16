@@ -1,15 +1,24 @@
+import pathlib
 from setuptools import setup
 
+# The directory containing this file
+HERE = pathlib.Path(__file__).parent
+
+# The text of the README file
+README = (HERE / "README.md").read_text()
+
+# Setup
 setup(
     name='beets-bpmanalyser',
     version='1.0.0',
-    description='A beets plugin analysing tempo on songs and storing it in the bpm tag.',
-    long_description=open('README.md').read(),
+    description='A beets plugin for analysing tempo of songs and storing it in the bpm tag.',
+    long_description=README,
     author='Adam Jakab',
     author_email='adam@jakab.pro',
     url='https://github.com/adamjakab/BeetsPluginBpmAnalyser',
     license='MIT',
     platforms='ALL',
+    include_package_data=True,
 
     test_suite='test',
 
@@ -26,5 +35,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Environment :: Console',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
     ],
 )
