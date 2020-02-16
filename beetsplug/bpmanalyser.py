@@ -86,7 +86,7 @@ class BpmAnayserCommand(Subcommand):
 
         self.parser.add_option(
             '-t', '--threads',
-            action='store', dest='threads', default=self.cfg_threads,
+            action='store', dest='threads', type='int', default=self.cfg_threads,
             help=u'[default: {}] the number of threads to run in parallel'.format(self.cfg_threads)
         )
 
