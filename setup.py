@@ -13,6 +13,7 @@ setup(
     version='1.0.0',
     description='A beets plugin for analysing tempo of songs and storing it in the bpm tag.',
     long_description=README,
+    long_description_content_type='text/markdown',
     author='Adam Jakab',
     author_email='adam@jakab.pro',
     url='https://github.com/adamjakab/BeetsPluginBpmAnalyser',

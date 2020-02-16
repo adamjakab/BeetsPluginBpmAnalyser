@@ -26,8 +26,8 @@ Activate the plugin in your configuration file:
 
 ```yaml
 plugins:
-    - bpmanalyser
-    # [...]
+  - bpmanalyser
+  # [...]
 ```
 
 Check if plugin is loaded with `beet version`. It should list 'bpmanalyser' amongst the loaded plugins.
@@ -35,12 +35,12 @@ Check if plugin is loaded with `beet version`. It should list 'bpmanalyser' amon
 Your default configuration is:
 ```yaml
 bpmanalyser:
-    auto: no
-    dry-run: no
-    write: yes
-    threads: 2
-    force: no
-    quiet: no
+  auto: no
+  dry-run: no
+  write: yes
+  threads: 2
+  force: no
+  quiet: no
 ```
 
 Apart from `auto` all the other configuration options can also be set from the command line when running the pulgin. Here are the options explained:
@@ -65,8 +65,8 @@ Clone the repository as described above in the installation section.
 Add the path of the 'beetsplug' folder:
 ```yaml
 pluginpath:
-    - /path/to/folder/beetsplug/
-    # [...]
+  - /path/to/folder/beetsplug/
+  # [...]
 ```
 
 If you need a custom configuration while developing you can make use of the included `dev.yml` file by using `beet -c dev.yml [CMD]`.
