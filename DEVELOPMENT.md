@@ -32,3 +32,5 @@ $ twine check dist/*
 $ twine upload dist/*
 ```
 
+The PyPi project base is [here](https://pypi.org/project/beets-bpmanalyser/).
+
