@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # Setup
 setup(
     name='beets-bpmanalyser',
-    version='1.0.0',
+    version='1.1.0',
     description='A beets plugin for analysing tempo of songs and storing it in the bpm tag.',
     long_description=README,
     long_description_content_type='text/markdown',
