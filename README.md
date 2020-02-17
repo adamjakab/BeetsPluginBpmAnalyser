@@ -5,7 +5,7 @@
 
 *A [beets](https://github.com/beetbox/beets) plugin for insane obsessive-compulsive music geeks.*
 
-*beets-bpmanalyser* plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
+The *beets-bpmanalyser* plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
 
 
 ## Installation
