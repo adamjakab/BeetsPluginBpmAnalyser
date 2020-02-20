@@ -17,14 +17,6 @@ $ pip install beets-bpmanalyser
 
 It has two dependencies: [numpy](https://pypi.org/project/numpy/) and [aubio](https://pypi.org/project/aubio/) both of which will be installed automatically when installing the plugin itself.
 
-It is also possible to clone the git repository and install the plugin manually:
-
-```shell script
-$ git https://github.com/adamjakab/BeetsPluginBpmAnalyser
-$ cd BeetsPluginBpmAnalyser
-$ ./setup.py install
-```
-
 
 ## Usage
 Activate the plugin in your configuration file:

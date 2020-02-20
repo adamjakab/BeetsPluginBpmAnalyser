@@ -8,17 +8,25 @@ Take care of dependencies:
 $ pip install numpy, aubio
 ```
 
-Clone the repository as described above in the installation section.
+Clone the repository and set up the plugin manually:
 
-Add the path of the 'beetsplug' folder:
+```shell script
+$ git https://github.com/adamjakab/BeetsPluginBpmAnalyser
+$ cd BeetsPluginBpmAnalyser
+$ ./setup.py install
+```
+
+Add the path of the 'beetsplug' folder and add the name of the plugin to activate it:
 ```yaml
 pluginpath:
-  - /path/to/folder/beetsplug/
+  - /path/to/BeetsPluginBpmAnalyser/beetsplug/
+  # [...]
+plugins:
+  - bpmanalyser
   # [...]
 ```
 
 If you need a custom configuration while developing you can make use of the included `dev.yml` file by using `beet -c dev.yml [CMD]`.
-
 
 
 ## Deployment of a new version
