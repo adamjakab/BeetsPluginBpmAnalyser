@@ -2,7 +2,7 @@
 
 # Project
 tmp/
-
+coverage/
 
 ### Python template
 # Byte-compiled / optimized / DLL files

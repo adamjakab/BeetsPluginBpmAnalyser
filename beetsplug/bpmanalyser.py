@@ -70,7 +70,7 @@ class BpmAnayserCommand(Subcommand):
         if not os.path.isfile(self.analyser_script_path):
             raise FileNotFoundError("Analyser script not found!")
 
-        self.parser = OptionParser(usage='%prog training_name [options] [QUERY...]')
+        self.parser = OptionParser(usage='%prog [options] [QUERY...]')
 
         self.parser.add_option(
             '-d', '--dry-run',
@@ -86,7 +86,7 @@ class BpmAnayserCommand(Subcommand):
 
         self.parser.add_option(
             '-t', '--threads',
-            action='store', dest='threads', default=self.cfg_threads,
+            action='store', dest='threads', type='int', default=self.cfg_threads,
             help=u'[default: {}] the number of threads to run in parallel'.format(self.cfg_threads)
         )
 

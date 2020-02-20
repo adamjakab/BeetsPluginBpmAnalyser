@@ -1,8 +1,13 @@
+[![Build Status](https://travis-ci.org/adamjakab/BeetsPluginBpmAnalyser.svg?branch=master)](https://travis-ci.org/adamjakab/BeetsPluginBpmAnalyser)
+[![Coverage Status](https://coveralls.io/repos/github/adamjakab/BeetsPluginBpmAnalyser/badge.svg?branch=master)](https://coveralls.io/github/adamjakab/BeetsPluginBpmAnalyser?branch=master)
+[![PyPi](https://img.shields.io/pypi/v/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
+
+
 # BPM Analyser (beets plugin)
 
 *A [beets](https://github.com/beetbox/beets) plugin for insane obsessive-compulsive music geeks.*
 
-*beets-bpmanalyser* plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
+The *beets-bpmanalyser* plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
 
 
 ## Installation
@@ -13,14 +18,6 @@ $ pip install beets-bpmanalyser
 ```
 
 It has two dependencies: [numpy](https://pypi.org/project/numpy/) and [aubio](https://pypi.org/project/aubio/) both of which will be installed automatically when installing the plugin itself.
-
-It is also possible to clone the git repository and install the plugin manually:
-
-```shell script
-$ git https://github.com/adamjakab/BeetsPluginBpmAnalyser
-$ cd BeetsPluginBpmAnalyser
-$ ./setup.py install
-```
 
 
 ## Usage
@@ -54,6 +51,54 @@ Apart from `auto` all the other configuration options can also be set from the c
 - force [-f, --force]: By default only songs with no bpm value (bpm:0) are analysed. Use this option to force the analysis regardless of the current bpm value.
 - quiet [-q, --quiet]: Do not display any output from the command.
 
+So use it like this:
+
+    $ beet bpmanalyser [-dwfq] [-t n] [QUERY...]
+    
+### Examples:
+
+Calculate but show only (do not store) tempo information on all AC/DC songs:
+
+    $ beet bpmanalyser --dry-run artist:AC/DC
+    
+Update tempo information on all songs where it is missing:
+
+    $ beet bpmanalyser bpm:0
+    
+Force the update of tempo information on all songs where it has already been set:
+
+    $ beet bpmanalyser -f ^bpm:0
+
+
+## Accuracy
+BPM values from acousticbrainz:
+```shell script
+$ beet -c dev.yml acousticbrainz artist:AC/DC
+acousticbrainz: getting data for: [format:MP3][bpm:121.106361389] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/01. Baby, Please Don't Go.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:117.203399658] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/02. She's Got Balls.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:106.826393127] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/03. Little Lover.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:119.486862183] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/04. Stick Around.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:133.189102173] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/05. Soul Stripper.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:128.054992676] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/06. You Ain't Got a Hold on Me.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:123.012046814] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/07. Love Song.mp3
+acousticbrainz: getting data for: [format:MP3][bpm:136.914703369] ::: /Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/08. Show Business.mp3
+```
+
+BPM values calculated by aubio:
+```shell script
+$ beet -c dev.yml bpmanalyser artist:AC/DC -df
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/01. Baby, Please Don't Go.mp3] bpm: 122
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/02. She's Got Balls.mp3] bpm: 117
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/03. Little Lover.mp3] bpm: 106
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/04. Stick Around.mp3] bpm: 120
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/05. Soul Stripper.mp3] bpm: 132
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/06. You Ain't Got a Hold on Me.mp3] bpm: 128
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/07. Love Song.mp3] bpm: 125
+bpmanalyser: Song[/Volumes/Data/_TmpMusic_/A/AC_DC/High Voltage/08. Show Business.mp3] bpm: 139
+```
+
+I could not wish for better.
+ 
 
 ## Development Notes 
 Read the [development](./DEVELOPMENT.md) docs.
