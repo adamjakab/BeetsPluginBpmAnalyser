@@ -1,42 +1,20 @@
 #  Copyright: Copyright (c) 2020., Adam Jakab
 #
 #  Author: Adam Jakab <adam at jakab dot pro>
-#  Created: 2/16/20, 8:27 PM
+#  Created: 2/23/20, 10:53 PM
 #  License: See LICENSE.txt
-#
 
-import os
 import logging
+import os
+from concurrent import futures
 from optparse import OptionParser
+from subprocess import Popen, PIPE
 
 from beets.library import Library as BeatsLibrary
-from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand, decargs
-from beets.util import cpu_count
-from subprocess import Popen, PIPE
-from concurrent import futures
-
-import beetsplug.bpmanalyser_utils as bpm_analyser_utils
 
 # Module methods
 log = logging.getLogger('beets.bpmanalyser')
-
-
-# Classes ###
-class BpmAnalyserPlugin(BeetsPlugin):
-    def __init__(self):
-        super(BpmAnalyserPlugin, self).__init__()
-        self.config.add({
-            'auto': False,
-            'dry-run': False,
-            'write': True,
-            'threads': cpu_count(),
-            'force': False,
-            'quiet': False
-        })
-
-    def commands(self):
-        return [BpmAnayserCommand(self.config)]
 
 
 class BpmAnayserCommand(Subcommand):
@@ -62,13 +40,8 @@ class BpmAnayserCommand(Subcommand):
         self.cfg_write = self.config.get("write")
         self.cfg_threads = self.config.get("threads")
         self.cfg_force = self.config.get("force")
+        self.cfg_version = False
         self.cfg_quiet = self.config.get("quiet")
-
-        module_path = os.path.dirname(bpm_analyser_utils.__file__)
-        self.analyser_script_path = module_path + "/get_song_bpm.py"
-        log.debug("External script path: {}".format(self.analyser_script_path))
-        if not os.path.isfile(self.analyser_script_path):
-            raise FileNotFoundError("Analyser script not found!")
 
         self.parser = OptionParser(usage='%prog [options] [QUERY...]')
 
@@ -97,6 +70,12 @@ class BpmAnayserCommand(Subcommand):
         )
 
         self.parser.add_option(
+            '-v', '--version',
+            action='store_true', dest='version', default=self.cfg_version,
+            help=u'[default: {}] show plugin version'.format(self.cfg_version)
+        )
+
+        self.parser.add_option(
             '-q', '--quiet',
             action='store_true', dest='quiet', default=self.cfg_quiet,
             help=u'[default: {}] mute all output'.format(self.cfg_quiet)
@@ -114,14 +93,29 @@ class BpmAnayserCommand(Subcommand):
         self.cfg_write = options.write
         self.cfg_threads = options.threads
         self.cfg_force = options.force
+        self.cfg_version = options.version
         self.cfg_quiet = options.quiet
 
         self.lib = lib
         self.query = decargs(arguments)
 
+        if options.version:
+            self.show_version_information()
+            return
+
         self.analyse_songs()
 
+    def show_version_information(self):
+        from beetsplug.bpmanalyser.version import __version__
+        self._say("Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(__version__))
+
     def analyse_songs(self):
+        module_path = os.path.dirname(__file__)
+        self.analyser_script_path = os.path.join(module_path, "get_song_bpm.py")
+        log.debug("External script path: {}".format(self.analyser_script_path))
+        if not os.path.isfile(self.analyser_script_path):
+            raise FileNotFoundError("Analyser script not found!")
+
         # Setup the query
         query = self.query
         if not self.cfg_force:
@@ -129,7 +123,7 @@ class BpmAnayserCommand(Subcommand):
             query.append(query_element)
 
         # Get the library items
-        # @todo: implement a limit option so that user can decide to do only a imited number of items per run
+        # @todo: implement a limit option so that user can decide to do only a limited number of items per run
         items = self.lib.items(self.query)
 
         def analyse(item):

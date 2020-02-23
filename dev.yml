@@ -1,6 +1,18 @@
 # DEVELOPMENT CONFIGURATION OVERLAY
 # USAGE: beet -c dev.yml config -p
 
+directory: /Volumes/Data/_TmpMusic_/
+library: ~/.config/beets/test_library.db
+asciify_paths: yes
+id3v23: yes
+
+pluginpath:
+    - ~/Documents/Projects/Python/BeetsPluginBpmAnalyser/beetsplug
+
+plugins:
+    - info
+    - bpmanalyser
+
 #format_item: "[format:$format][bpm:$bpm] ::: $artist - $album - $title"
 format_item: "[format:$format][bpm:$bpm] ::: $path"
 
@@ -11,7 +23,3 @@ format_item: "[format:$format][bpm:$bpm] ::: $path"
 #    threads: 2
 #    force: no
 #    quiet: no
-
-
-
-
