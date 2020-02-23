@@ -1,26 +1,19 @@
 ---
 name: "\U0001F680 Feature request"
-about: Suggest a new idea for beets
+about: Suggest a new idea for beets-bpmanalyser
 
 ---
 
 ### Use case
 
-I'm trying to use beets to...
+I'm trying to use the beets-bpmanalyser plugin to...
 
 
 ### Solution
 <!--
-Do you have a proposal for how beets should work?
+Do you have a proposal for how it should work?
 
-Try to be as specific as possible—for example, you could propose the name for
-a new command-line option or refer to the particular ID3 frame you wish
-were supported.
+Try to be as specific as possible in describing your idea.
+Don't worry if it is not tech-talk. Just dream.
 -->
 
-
-### Alternatives
-<!--
-Have you tried using an existing plugin to do something similar?
-Is there any current feature that _almost_ does what you need?
--->

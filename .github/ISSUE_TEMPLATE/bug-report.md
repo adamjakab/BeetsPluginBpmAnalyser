@@ -1,6 +1,6 @@
 ---
 name: "\U0001F41B Bug report"
-about: Report a problem with beets
+about: Report a problem with beets-bpmanalyser
 
 ---
 
@@ -13,10 +13,10 @@ enough detail so that other people can reproduce the problem.
 
 ### Problem
 
-Running this command in verbose (`-vv`) mode:
+Running your command in verbose (`-vv`) mode:
 
 ```sh
-$ beet -vv (... paste here ...)
+$ beet -vv bpmanalyser (... paste here the rest...)
 ```
 
 Led to this problem:
@@ -25,18 +25,22 @@ Led to this problem:
 (paste here)
 ```
 
-Here's a link to the music files that trigger the bug (if relevant):
-
 
 ### Setup
 
 * OS: 
 * Python version: 
-* beets version: 
-* Turning off plugins made problem go away (yes/no): 
+* Beets version: 
+* Turning off other plugins made problem go away (yes/no): 
 
 My configuration (output of `beet config`) is:
 
 ```yaml
+(paste here)
+```
+
+My plugin version (output of `beet bpmanalyser -v`) is:
+
+```text
 (paste here)
 ```
