@@ -1,5 +1,7 @@
 # Development Notes 
 
+This document for now is mostly for myself. Sorry for the mess ;)
+
 ## General
 Read the [plugin development](https://beets.readthedocs.io/en/stable/dev/plugins.html) section.
 
