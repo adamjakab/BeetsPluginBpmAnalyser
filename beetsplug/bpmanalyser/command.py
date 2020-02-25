@@ -9,6 +9,7 @@ import os
 from concurrent import futures
 from optparse import OptionParser
 from subprocess import Popen, PIPE
+import sys
 
 from beets.library import Library as BeatsLibrary
 from beets.ui import Subcommand, decargs
@@ -146,7 +147,7 @@ class BpmAnayserCommand(Subcommand):
     def get_bpm_from_analyser_script(self, item_path):
         log.debug("calling external script: {}".format(self.analyser_script_path))
 
-        proc = Popen(['python', self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
+        proc = Popen([sys.executable, self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         log.debug("External script error output: {}".format(stderr.decode("utf-8")))
