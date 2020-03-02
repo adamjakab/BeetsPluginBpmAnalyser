@@ -80,15 +80,15 @@ class BpmAnayserCommand(Subcommand):
         )
 
         self.parser.add_option(
-            '-v', '--version',
-            action='store_true', dest='version', default=self.cfg_version,
-            help=u'[default: {}] show plugin version'.format(self.cfg_version)
-        )
-
-        self.parser.add_option(
             '-q', '--quiet',
             action='store_true', dest='quiet', default=self.cfg_quiet,
             help=u'[default: {}] mute all output'.format(self.cfg_quiet)
+        )
+
+        self.parser.add_option(
+            '-v', '--version',
+            action='store_true', dest='version', default=self.cfg_version,
+            help=u'show plugin version'
         )
 
         # Keep this at the end
