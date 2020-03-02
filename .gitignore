@@ -3,6 +3,10 @@
 # Project
 tmp/
 coverage/
+BEETSDIR/Music
+BEETSDIR/library.db
+BEETSDIR/state.pickle
+
 
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -155,10 +159,6 @@ dmypy.json
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 
-# mpeltonen/sbt-idea plugin
 .idea_modules/
-
-# Cursive Clojure plugin
 .idea/replstate.xml
-
-
+/.idea/terminal.xml
