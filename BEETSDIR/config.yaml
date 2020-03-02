@@ -1,8 +1,9 @@
-# DEVELOPMENT CONFIGURATION OVERLAY
-# USAGE: beet -c dev.yml config -p
+# DEVELOPMENT CONFIGURATION FILE
+# USAGE: export environment variable BEETSDIR=/path/to/BEETSDIR
+# then: `beets config -p` should list this file
 
-directory: /Volumes/Data/_TmpMusic_/
-library: ~/.config/beets/test_library.db
+directory: Music
+library: library.db
 asciify_paths: yes
 id3v23: yes
 
@@ -13,8 +14,11 @@ plugins:
     - info
     - bpmanalyser
 
-#format_item: "[format:$format][bpm:$bpm] ::: $artist - $album - $title"
 format_item: "[format:$format][bpm:$bpm] ::: $path"
+
+import:
+    copy: yes
+    autotag: no
 
 #bpmanalyser:
 #    auto: no

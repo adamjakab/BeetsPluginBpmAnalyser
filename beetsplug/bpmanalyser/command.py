@@ -49,25 +49,34 @@ class BpmAnayserCommand(Subcommand):
         self.parser.add_option(
             '-d', '--dry-run',
             action='store_true', dest='dryrun', default=self.cfg_dry_run,
-            help=u'[default: {}] display the bpm values but do not update the library items'.format(self.cfg_dry_run)
+            help=u'[default: {}] display the bpm values but do not update the '
+                 u'library items'.format(
+                self.cfg_dry_run)
         )
 
         self.parser.add_option(
             '-w', '--write',
             action='store_true', dest='write', default=self.cfg_write,
-            help=u'[default: {}] write the bpm values to the media files'.format(self.cfg_write)
+            help=u'[default: {}] write the bpm values to the media '
+                 u'files'.format(
+                self.cfg_write)
         )
 
         self.parser.add_option(
             '-t', '--threads',
-            action='store', dest='threads', type='int', default=self.cfg_threads,
-            help=u'[default: {}] the number of threads to run in parallel'.format(self.cfg_threads)
+            action='store', dest='threads', type='int',
+            default=self.cfg_threads,
+            help=u'[default: {}] the number of threads to run in '
+                 u'parallel'.format(
+                self.cfg_threads)
         )
 
         self.parser.add_option(
             '-f', '--force',
             action='store_true', dest='force', default=self.cfg_force,
-            help=u'[default: {}] force analysis of items with non-zero bpm values'.format(self.cfg_force)
+            help=u'[default: {}] force analysis of items with non-zero bpm '
+                 u'values'.format(
+                self.cfg_force)
         )
 
         self.parser.add_option(
@@ -108,7 +117,9 @@ class BpmAnayserCommand(Subcommand):
 
     def show_version_information(self):
         from beetsplug.bpmanalyser.version import __version__
-        self._say("Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(__version__))
+        self._say(
+            "Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(
+                __version__))
 
     def analyse_songs(self):
         module_path = os.path.dirname(__file__)
@@ -124,16 +135,21 @@ class BpmAnayserCommand(Subcommand):
             query.append(query_element)
 
         # Get the library items
-        # @todo: implement a limit option so that user can decide to do only a limited number of items per run
+        # @todo: implement a limit option so that user can decide to do only
+        #  a limited number of items per run
         items = self.lib.items(self.query)
 
         def analyse(item):
             item_path = item.get("path").decode("utf-8")
             log.debug("Analysing[{0}]...".format(item_path))
 
-            bpm = int(self.get_bpm_from_analyser_script(item_path))
+            bpm, errors = self.get_bpm_from_analyser_script(item_path)
 
-            self._say("Song[{0}] bpm: {1}".format(item_path, bpm))
+            if bpm == 0:
+                self._say("Bpm[ERROR]: - {}".format(item_path))
+                # self._say("Bpm[ERROR]: - {}".format(errors))
+            else:
+                self._say("Bpm[{}]: {}".format(bpm, item_path))
 
             if not self.cfg_dry_run:
                 if bpm != 0:
@@ -145,19 +161,23 @@ class BpmAnayserCommand(Subcommand):
         self.execute_on_items(items, analyse, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
-        log.debug("calling external script: {}".format(self.analyser_script_path))
+        log.debug(
+            "calling external script: {}".format(self.analyser_script_path))
 
-        proc = Popen([sys.executable, self.analyser_script_path, item_path], stdout=PIPE, stderr=PIPE)
+        proc = Popen([sys.executable, self.analyser_script_path, item_path],
+                     stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
-
-        log.debug("External script error output: {}".format(stderr.decode("utf-8")))
 
         try:
             bpm = int(stdout.decode("utf-8"))
+            errors = ""
         except ValueError:
             bpm = 0
+            errors = stderr.decode()
+            if len(errors) > 0:
+                log.debug(errors)
 
-        return bpm
+        return bpm, errors
 
     def execute_on_items(self, items, func, msg=None):
         total = len(items)
