@@ -40,12 +40,14 @@ def _analyse_tempo(item_path):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise RuntimeError("Usage: python get_song_bpm.py song_path")
+        sys.stderr.write("Usage: python get_song_bpm.py song_path" + "\n")
+        sys.exit(1)
 
     file_name = sys.argv[1]
 
     if not os.path.isfile(file_name):
-        raise RuntimeError("Song not found.")
+        sys.stderr.write("Audio file not found" + "\n")
+        sys.exit(1)
 
     bpm = _analyse_tempo(file_name)
     print(bpm)
