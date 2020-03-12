@@ -3,9 +3,8 @@
 # Project
 tmp/
 coverage/
-BEETSDIR/Music
-BEETSDIR/library.db
-BEETSDIR/state.pickle
+BEETSDIR/*
+!BEETSDIR/config.yaml
 
 
 ### Python template
