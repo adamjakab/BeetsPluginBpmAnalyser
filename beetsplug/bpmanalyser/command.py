@@ -6,25 +6,24 @@
 
 import logging
 import os
+import sys
 from concurrent import futures
 from optparse import OptionParser
 from subprocess import Popen, PIPE
-import sys
 
-from beets.library import Library as BeatsLibrary
+from beets.library import Library as BeatsLibrary, Item
 from beets.ui import Subcommand, decargs
 
 # Module methods
 log = logging.getLogger('beets.bpmanalyser')
 
 
-class BpmAnayserCommand(Subcommand):
+class BpmAnalyserCommand(Subcommand):
     config = None
     lib = None
     query = None
     parser = None
 
-    cfg_auto = False
     cfg_dry_run = False
     cfg_write = True
     cfg_threads = 1
@@ -36,7 +35,6 @@ class BpmAnayserCommand(Subcommand):
     def __init__(self, cfg):
         self.config = cfg.flatten()
 
-        self.cfg_auto = self.config.get("auto")
         self.cfg_dry_run = self.config.get("dry-run")
         self.cfg_write = self.config.get("write")
         self.cfg_threads = self.config.get("threads")
@@ -92,7 +90,7 @@ class BpmAnayserCommand(Subcommand):
         )
 
         # Keep this at the end
-        super(BpmAnayserCommand, self).__init__(
+        super(BpmAnalyserCommand, self).__init__(
             parser=self.parser,
             name='bpmanalyser',
             help=u'analyse your songs for tempo and write it into the bpm tag'
@@ -121,12 +119,37 @@ class BpmAnayserCommand(Subcommand):
             "Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(
                 __version__))
 
-    def analyse_songs(self):
+    def find_analyser_script(self):
         module_path = os.path.dirname(__file__)
         self.analyser_script_path = os.path.join(module_path, "get_song_bpm.py")
         log.debug("External script path: {}".format(self.analyser_script_path))
         if not os.path.isfile(self.analyser_script_path):
             raise FileNotFoundError("Analyser script not found!")
+
+    def analyse(self, item: Item):
+        if not self.analyser_script_path:
+            self.find_analyser_script()
+
+        item_path = item.get("path").decode("utf-8")
+        log.debug("Analysing[{0}]...".format(item_path))
+
+        bpm, errors = self.get_bpm_from_analyser_script(item_path)
+
+        if bpm == 0:
+            self._say("Bpm[ERROR]: - {}".format(item_path))
+            # self._say("Bpm[ERROR]: - {}".format(errors))
+        else:
+            self._say("Bpm[{}]: {}".format(bpm, item_path))
+
+        if not self.cfg_dry_run:
+            if bpm != 0:
+                item['bpm'] = bpm
+                if self.cfg_write:
+                    item.try_write()
+                item.store()
+
+    def analyse_songs(self):
+        self.find_analyser_script()
 
         # Setup the query
         query = self.query
@@ -139,26 +162,7 @@ class BpmAnayserCommand(Subcommand):
         #  a limited number of items per run
         items = self.lib.items(self.query)
 
-        def analyse(item):
-            item_path = item.get("path").decode("utf-8")
-            log.debug("Analysing[{0}]...".format(item_path))
-
-            bpm, errors = self.get_bpm_from_analyser_script(item_path)
-
-            if bpm == 0:
-                self._say("Bpm[ERROR]: - {}".format(item_path))
-                # self._say("Bpm[ERROR]: - {}".format(errors))
-            else:
-                self._say("Bpm[{}]: {}".format(bpm, item_path))
-
-            if not self.cfg_dry_run:
-                if bpm != 0:
-                    item['bpm'] = bpm
-                    if self.cfg_write:
-                        item.try_write()
-                    item.store()
-
-        self.execute_on_items(items, analyse, msg='Analysing tempo...')
+        self.execute_on_items(items, self.analyse, msg='Analysing tempo...')
 
     def get_bpm_from_analyser_script(self, item_path):
         log.debug(

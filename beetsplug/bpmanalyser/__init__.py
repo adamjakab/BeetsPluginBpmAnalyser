@@ -7,8 +7,7 @@
 
 from beets.plugins import BeetsPlugin
 from beets.util import cpu_count
-
-from beetsplug.bpmanalyser.command import BpmAnayserCommand
+from beetsplug.bpmanalyser.command import BpmAnalyserCommand
 
 
 class BpmAnalyserPlugin(BeetsPlugin):
@@ -23,5 +22,14 @@ class BpmAnalyserPlugin(BeetsPlugin):
             'quiet': False
         })
 
+        # On-import analysis.
+        if self.config['auto']:
+            self.import_stages = [self.imported]
+
     def commands(self):
-        return [BpmAnayserCommand(self.config)]
+        return [BpmAnalyserCommand(self.config)]
+
+    def imported(self, session, task):
+        # Add BPM for imported items.
+        for item in task.imported_items():
+            BpmAnalyserCommand(self.config).analyse(item)
