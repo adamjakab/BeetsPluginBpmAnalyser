@@ -131,12 +131,7 @@ class BpmAnalyserCommand(Subcommand):
             self.find_analyser_script()
 
         item_path = item.get("path").decode("utf-8")
-
-        if not self.cfg_force and item['bpm'] != 0:
-            log.debug("Skipping item with existing BPM[{0}]...".format(item_path))
-            return
-        else:
-            log.debug("Analysing[{0}]...".format(item_path))
+        log.debug("Analysing[{0}]...".format(item_path))
 
         bpm, errors = self.get_bpm_from_analyser_script(item_path)
 
