@@ -1,4 +1,8 @@
-# Created by .ignore support plugin (hsz.mobi)
+ ## IDE (JetBrains/Eclipse)
+.idea/
+.project
+.pydevproject
+.settings
 
 # Project
 tmp/
