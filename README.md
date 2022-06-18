@@ -42,7 +42,7 @@ bpmanalyser:
   quiet: no
 ```
 
-Heads up! THe `auto` option is NOT YET IMPLEMENTED! It will be used to execute the analysis during import.
+You can set the `auto` option if you would like to execute the analysis during import. In this case, the `threads` option is ignored (beets import is already multithreaded).
 
 
 The other configuration options can also be set from the command line when running the plugin. 
