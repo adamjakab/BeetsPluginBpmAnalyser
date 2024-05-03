@@ -39,8 +39,9 @@ setup(
 
     install_requires=[
         'beets>=1.4.9',
+        'aubio',
         'numpy',
-        'aubio'
+        'pydub'
     ],
 
     tests_require=[
