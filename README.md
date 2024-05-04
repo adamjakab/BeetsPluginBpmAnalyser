@@ -5,12 +5,12 @@
 
 # BPM Analyser (Beets Plugin)
 
-The *beets-bpmanalyser* plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
+The _beets-bpmanalyser_ plugin lets you analyse the tempo of the songs you have in your library and write the bpm information on the bpm tag of your media files.
 
 This plugin has a more powerful big brother which does much more than just extracting bpm: [beets-xtractor plugin](https://github.com/adamjakab/BeetsPluginXtractor).
 
-
 ## Installation
+
 The plugin can be installed via:
 
 ```shell script
@@ -19,8 +19,8 @@ $ pip install beets-bpmanalyser
 
 It has two dependencies: [numpy](https://pypi.org/project/numpy/) and [aubio](https://pypi.org/project/aubio/) both of which will be installed automatically when installing the plugin itself.
 
-
 ## Usage
+
 Activate the plugin in your configuration file:
 
 ```yaml
@@ -32,6 +32,7 @@ plugins:
 Check if plugin is loaded with `beet version`. It should list 'bpmanalyser' amongst the loaded plugins.
 
 Your default configuration is:
+
 ```yaml
 bpmanalyser:
   auto: no
@@ -44,41 +45,39 @@ bpmanalyser:
 
 You can set the `auto` option if you would like to execute the analysis during import. In this case, the `threads` option is ignored (beets import is already multithreaded).
 
-
-The other configuration options can also be set from the command line when running the plugin. 
+The other configuration options can also be set from the command line when running the plugin.
 Here are the options explained:
 
-*-d, --dry-run*     : Do not update the library or the media files. Only display the bpm values.
+_-d, --dry-run_ : Do not update the library or the media files. Only display the bpm values.
 
-*-f, --force*       : By default only songs with no bpm value (bpm:0) are analysed. Use this option to force the analysis regardless of the current bpm value.
+_-f, --force_ : By default only songs with no bpm value (bpm:0) are analysed. Use this option to force the analysis regardless of the current bpm value.
 
-*-w, --write*       : Write the bpm values directly to the media files.
+_-w, --write_ : Write the bpm values directly to the media files.
 
-*-t THREADS, --threads=THREADS*: Set the number of processes that can run in parallel. It will default to the number of cores of your processor(s).
+_-t THREADS, --threads=THREADS_: Set the number of processes that can run in parallel. By default it is set to AUTO (`threads: AUTO`) and it will use half of the number of cores of your processor(s) have. You can set this to any number to specify how many concurrent threads you want to run.
 
-*-q, --quiet*       : Do not display any output from the command.
+_-q, --quiet_ : Do not display any output from the command.
 
-*-v, --version*     : Displays the version number of the plugin.
+_-v, --version_ : Displays the version number of the plugin.
 
-
-    
 ### Examples:
 
 Calculate but show only (do not store) tempo information on all AC/DC songs:
 
     $ beet bpmanalyser --dry-run artist:AC/DC
-    
+
 Update tempo information on all songs where it is missing:
 
     $ beet bpmanalyser bpm:0
-    
+
 Force the update of tempo information on all songs where it has already been set:
 
     $ beet bpmanalyser -f ^bpm:0
 
-
 ## Accuracy
+
 BPM values from acousticbrainz:
+
 ```shell script
 $ beet -c dev.yml acousticbrainz artist:AC/DC
 acousticbrainz: getting data for: [format:MP3][bpm:121.106361389] ::: /_TmpMusic_/A/AC_DC/High Voltage/01. Baby, Please Don't Go.mp3
@@ -92,6 +91,7 @@ acousticbrainz: getting data for: [format:MP3][bpm:136.914703369] ::: /_TmpMusic
 ```
 
 BPM values calculated by aubio:
+
 ```shell script
 $ beet -c dev.yml bpmanalyser artist:AC/DC -df
 bpmanalyser: Song[/_TmpMusic_/A/AC_DC/High Voltage/01. Baby, Please Don't Go.mp3] bpm: 122
@@ -103,16 +103,16 @@ bpmanalyser: Song[/_TmpMusic_/A/AC_DC/High Voltage/06. You Ain't Got a Hold on M
 bpmanalyser: Song[/_TmpMusic_/A/AC_DC/High Voltage/07. Love Song.mp3] bpm: 125
 bpmanalyser: Song[/_TmpMusic_/A/AC_DC/High Voltage/08. Show Business.mp3] bpm: 139
 ```
- 
 
 ## Issues
+
 If something is not working as expected please use the Issue tracker.
 If the documentation is not clear please use the Issue tracker.
 If you have a feature request please use the Issue tracker.
 In any other situation please use the Issue tracker.
 
-
 ## Other plugins by the same author
+
 - [beets-goingrunning](https://github.com/adamjakab/BeetsPluginGoingRunning)
 - [beets-xtractor](https://github.com/adamjakab/BeetsPluginXtractor)
 - [beets-yearfixer](https://github.com/adamjakab/BeetsPluginYearFixer)
@@ -121,11 +121,10 @@ In any other situation please use the Issue tracker.
 - [beets-bpmanalyser](https://github.com/adamjakab/BeetsPluginBpmAnalyser)
 - [beets-template](https://github.com/adamjakab/BeetsPluginTemplate)
 
-
 ## Acknowledgements
-Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to start on this plugin. 
 
+Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to start on this plugin.
 
 ## Final Remarks
-Enjoy!
 
+Enjoy!

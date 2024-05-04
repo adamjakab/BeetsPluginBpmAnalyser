@@ -7,15 +7,27 @@
 import logging
 import os
 import sys
-from concurrent import futures
+import hashlib
+import tempfile
+import multiprocessing
+
+from time import sleep
+from random import random
+import concurrent.futures as cf
 from optparse import OptionParser
-from subprocess import Popen, PIPE
+
+from aubio import source, tempo
+from numpy import diff, median
+from pydub import AudioSegment
 
 from beets.library import Library as BeatsLibrary, Item
 from beets.ui import Subcommand, decargs
 
 # Module methods
 log = logging.getLogger('beets.bpmanalyser')
+
+# Constants
+__FRAME_RATE__ = 44100
 
 
 class BpmAnalyserCommand(Subcommand):
@@ -26,12 +38,15 @@ class BpmAnalyserCommand(Subcommand):
 
     cfg_dry_run = False
     cfg_write = True
-    cfg_threads = 1
+    cfg_threads = "AUTO"
     cfg_force = False
     cfg_quiet = False
 
     analyser_script_path = None
 
+    #
+    # Initialize the plugin
+    #
     def __init__(self, cfg):
         self.config = cfg.flatten()
 
@@ -62,7 +77,7 @@ class BpmAnalyserCommand(Subcommand):
 
         self.parser.add_option(
             '-t', '--threads',
-            action='store', dest='threads', type='int',
+            action='store', dest='threads', type='string',
             default=self.cfg_threads,
             help=u'[default: {}] the number of threads to run in '
                  u'parallel'.format(
@@ -96,6 +111,9 @@ class BpmAnalyserCommand(Subcommand):
             help=u'analyse your songs for tempo and write it into the bpm tag'
         )
 
+    #
+    # The main entry function for running the extension
+    #
     def func(self, lib: BeatsLibrary, options, arguments):
         self.cfg_dry_run = options.dryrun
         self.cfg_write = options.write
@@ -112,44 +130,17 @@ class BpmAnalyserCommand(Subcommand):
             return
 
         self.analyse_songs()
-
-    def show_version_information(self):
-        from beetsplug.bpmanalyser.version import __version__
-        self._say(
-            "Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(
-                __version__))
-
-    def find_analyser_script(self):
-        module_path = os.path.dirname(__file__)
-        self.analyser_script_path = os.path.join(module_path, "get_song_bpm.py")
-        log.debug("External script path: {}".format(self.analyser_script_path))
-        if not os.path.isfile(self.analyser_script_path):
-            raise FileNotFoundError("Analyser script not found!")
-
-    def analyse(self, item: Item):
-        if not self.analyser_script_path:
-            self.find_analyser_script()
-
-        item_path = item.get("path").decode("utf-8")
-        log.debug("Analysing[{0}]...".format(item_path))
-
-        bpm, errors = self.get_bpm_from_analyser_script(item_path)
-
-        if bpm == 0:
-            self._say("Bpm[ERROR]: - {}".format(item_path))
-            # self._say("Bpm[ERROR]: - {}".format(errors))
-        else:
-            self._say("Bpm[{}]: {}".format(bpm, item_path))
-
-        if not self.cfg_dry_run:
-            if bpm != 0:
-                item['bpm'] = bpm
-                if self.cfg_write:
-                    item.try_write()
-                item.store()
-
+        
+        # Because of this pydub issue(https://github.com/jiaaro/pydub/issues/503) the below is necessary for now
+        # to regain console input (can also use reset) - not sure if Windows is affected
+        if os.name != 'nt':
+            os.system('stty echo')
+    
+    #
+    # Setup and trigger analysis
+    #
     def analyse_songs(self):
-        self.find_analyser_script()
+        # self.find_analyser_script()
 
         # Setup the query
         query = self.query
@@ -158,39 +149,121 @@ class BpmAnalyserCommand(Subcommand):
             query.append(query_element)
 
         # Get the library items
-        # @todo: implement a limit option so that user can decide to do only
-        #  a limited number of items per run
+        # @TODO: implement a limit option so that user can decide to do only a limited number of items per run
         items = self.lib.items(self.query)
 
-        self.execute_on_items(items, self.analyse, msg='Analysing tempo...')
-
-    def get_bpm_from_analyser_script(self, item_path):
-        log.debug(
-            "calling external script: {}".format(self.analyser_script_path))
-
-        proc = Popen([sys.executable, self.analyser_script_path, item_path],
-                     stdout=PIPE, stderr=PIPE)
-        stdout, stderr = proc.communicate()
-
-        try:
-            bpm = int(stdout.decode("utf-8"))
-            errors = ""
-        except ValueError:
-            bpm = 0
-            errors = stderr.decode()
-            if len(errors) > 0:
-                log.debug(errors)
-
-        return bpm, errors
-
-    def execute_on_items(self, items, func, msg=None):
+        self.execute_task_on_items(items)
+    
+    #
+    # Pass all items to Executor(multithread)
+    #
+    def execute_task_on_items(self, items):
         total = len(items)
+        taskRef = self.analyse
         finished = 0
-        with futures.ThreadPoolExecutor(max_workers=self.cfg_threads) as e:
-            for _ in e.map(func, items):
+        max_workers = 1
+        if self.cfg_threads.isnumeric():
+            max_workers = int(self.cfg_threads)
+        elif self.cfg_threads == "AUTO":
+            max_workers = round(multiprocessing.cpu_count() / 2)
+        else:
+            max_workers = 1
+            
+        self._say("BpmAnalyser exec threads: {}".format(max_workers))
+        
+        # @TODO: create and show a progress bar (--progress-only option)
+        with cf.ThreadPoolExecutor(max_workers) as executor:
+            for result in executor.map(taskRef, items):
                 finished += 1
-                # @create and show a progress bar (--progress-only option)
+            
+        self._say("Done.")
+    
+    # 
+    # The main Analisys function for the item
+    #
+    def analyse(self, item: Item):
+        item_path = item.get("path").decode("utf-8")
+        log.debug("Analysing[{0}]...".format(item_path))
+        bpm, error, msg = self._convert_and_analyse(item_path)
+        
+        if error:
+            log.error("Error: {}".format(msg))
+            bpm = 0
+        else:
+            self._say("Bpm[{}]: {}".format(bpm, item_path))
+        
+        if not self.cfg_dry_run:
+            if bpm != 0:
+                item['bpm'] = bpm
+                if self.cfg_write:
+                    item.try_write()
+                item.store()
+    
+    #
+    # convert, analise and return the result
+    #
+    def _convert_and_analyse(self, item_path):
+        error = False
+        bpm = 0
+        message = "OK"
+        
+        try:
+            wav_path = self._convert_audio_to_wav(item_path)
+            bpm = self._analyse_tempo(wav_path)
+            os.remove(wav_path)
+        except Exception as e:
+            error = True
+            message = e
+        
+        return bpm, error, message
+    
+    #
+    # Convert the audio file to .wav 
+    #
+    def _convert_audio_to_wav(self, item_path):
+        tempdir = tempfile.gettempdir()
+        filename = hashlib.md5(item_path.encode('utf-8')).hexdigest()
+        wav_path = "{dir}/{file}.wav".format(dir=tempdir, file=filename)
+        
+        sound = AudioSegment.from_file(item_path)
+        if (sound.frame_rate != __FRAME_RATE__):
+            sound = sound.set_frame_rate(__FRAME_RATE__)
+        sound.export(wav_path, format="wav")
+        return wav_path
+    
+    #
+    # Do the song analisys
+    #
+    def _analyse_tempo(self, item_path):
+        sample_rate, win_s, hop_s = __FRAME_RATE__, 1024, 512
+        src = source(item_path, sample_rate, hop_s)
+        # sample_rate = src.samplerate
+        o = tempo("default", win_s, hop_s, __FRAME_RATE__)
 
+        beats = []
+        total_frames = 0
+        while True:
+            samples, read = src()
+            is_beat = o(samples)
+            if is_beat:
+                this_beat = o.get_last_s()
+                beats.append(this_beat)
+            total_frames += read
+            if read < hop_s:
+                break
+
+        bpms = 60.0 / diff(beats)
+
+        return int(median(bpms))
+
+    # Plugin version Information
+    def show_version_information(self):
+        from beetsplug.bpmanalyser.version import __version__
+        self._say(
+            "Bpm Analyser(beets-bpmanalyser) plugin for Beets: v{0}".format(
+                __version__))
+    
+    # Say something (if not in quiet mode)
     def _say(self, msg):
         if not self.cfg_quiet:
             log.info(msg)

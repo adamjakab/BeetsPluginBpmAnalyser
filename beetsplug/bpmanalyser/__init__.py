@@ -7,20 +7,20 @@
 import logging
 
 from beets.plugins import BeetsPlugin
-from beets.util import cpu_count
 from beetsplug.bpmanalyser.command import BpmAnalyserCommand
 
 log = logging.getLogger('beets.bpmanalyser')
 
 
 class BpmAnalyserPlugin(BeetsPlugin):
+
     def __init__(self):
         super(BpmAnalyserPlugin, self).__init__()
         self.config.add({
             'auto': False,
             'dry-run': False,
             'write': True,
-            'threads': cpu_count(),
+            'threads': "AUTO",
             'force': False,
             'quiet': False
         })
