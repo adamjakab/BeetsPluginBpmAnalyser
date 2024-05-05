@@ -4,21 +4,15 @@
 #  Created: 2/23/20, 10:53 PM
 #  License: See LICENSE.txt
 
-import logging
 import os
 import sys
-import hashlib
-import tempfile
 import multiprocessing
-
-from time import sleep
-from random import random
+import json
+import logging
 import concurrent.futures as cf
-from optparse import OptionParser
 
-from aubio import source, tempo
-from numpy import diff, median
-from pydub import AudioSegment
+from optparse import OptionParser
+from subprocess import PIPE, Popen
 
 from beets.library import Library as BeatsLibrary, Item
 from beets.ui import Subcommand, decargs
@@ -103,6 +97,13 @@ class BpmAnalyserCommand(Subcommand):
             action='store_true', dest='version', default=self.cfg_version,
             help=u'show plugin version'
         )
+        
+        # set up the analyser script path
+        module_path = os.path.dirname(__file__)
+        self.analyser_script_path = os.path.join(module_path, "analyser.py")
+        if not os.path.isfile(self.analyser_script_path):
+            raise FileNotFoundError("Analyser script not found!")
+        # log.debug("External analyser script path: {}".format(self.analyser_script_path))
 
         # Keep this at the end
         super(BpmAnalyserCommand, self).__init__(
@@ -155,19 +156,18 @@ class BpmAnalyserCommand(Subcommand):
         self.execute_task_on_items(items)
     
     #
-    # Pass all items to Executor(multithread)
+    # Pass all items to multithread Executor
     #
     def execute_task_on_items(self, items):
         total = len(items)
-        taskRef = self.analyse
+        taskRef = self.runAnalyser
         finished = 0
+        
         max_workers = 1
-        if self.cfg_threads.isnumeric():
+        if str(self.cfg_threads).isnumeric():
             max_workers = int(self.cfg_threads)
         elif self.cfg_threads == "AUTO":
-            max_workers = round(multiprocessing.cpu_count() / 2)
-        else:
-            max_workers = 1
+            max_workers = round(multiprocessing.cpu_count() * 0.75)
             
         self._say("BpmAnalyser exec threads: {}".format(max_workers))
         
@@ -178,83 +178,43 @@ class BpmAnalyserCommand(Subcommand):
             
         self._say("Done.")
     
-    # 
-    # The main Analisys function for the item
-    #
-    def analyse(self, item: Item):
+    def runAnalyser(self, item: Item):
         item_path = item.get("path").decode("utf-8")
         log.debug("Analysing[{0}]...".format(item_path))
-        bpm, error, msg = self._convert_and_analyse(item_path)
         
-        if error:
-            log.error("Error: {}".format(msg))
-            bpm = 0
-        else:
-            self._say("Bpm[{}]: {}".format(bpm, item_path))
+        proc = Popen([sys.executable, self.analyser_script_path, item_path],
+                     stdout=PIPE, stderr=PIPE)
+        stdout, stderr = proc.communicate()
+
+        # By default assume unknown error
+        error = True
+        message = "Unknown error!"
+        bpm = 0
         
-        if not self.cfg_dry_run:
-            if bpm != 0:
+        # On successful execution script should output a json
+        try:
+            resp = json.loads(stdout)
+            error = resp["error"]
+            message = resp["message"]
+            bpm = resp["bpm"]
+        except Exception:
+            message = message + " Unparsable response."
+            
+        if (proc.returncode != 0 or error == True):
+            log.error("Error({}): {}".format(proc.returncode, message))
+            return False
+        
+        if bpm != 0:
+            if not self.cfg_dry_run:
                 item['bpm'] = bpm
                 if self.cfg_write:
                     item.try_write()
                 item.store()
-    
-    #
-    # convert, analise and return the result
-    #
-    def _convert_and_analyse(self, item_path):
-        error = False
-        bpm = 0
-        message = "OK"
-        
-        try:
-            wav_path = self._convert_audio_to_wav(item_path)
-            bpm = self._analyse_tempo(wav_path)
-            os.remove(wav_path)
-        except Exception as e:
-            error = True
-            message = e
-        
-        return bpm, error, message
-    
-    #
-    # Convert the audio file to .wav 
-    #
-    def _convert_audio_to_wav(self, item_path):
-        tempdir = tempfile.gettempdir()
-        filename = hashlib.md5(item_path.encode('utf-8')).hexdigest()
-        wav_path = "{dir}/{file}.wav".format(dir=tempdir, file=filename)
-        
-        sound = AudioSegment.from_file(item_path)
-        if (sound.frame_rate != __FRAME_RATE__):
-            sound = sound.set_frame_rate(__FRAME_RATE__)
-        sound.export(wav_path, format="wav")
-        return wav_path
-    
-    #
-    # Do the song analisys
-    #
-    def _analyse_tempo(self, item_path):
-        sample_rate, win_s, hop_s = __FRAME_RATE__, 1024, 512
-        src = source(item_path, sample_rate, hop_s)
-        # sample_rate = src.samplerate
-        o = tempo("default", win_s, hop_s, __FRAME_RATE__)
-
-        beats = []
-        total_frames = 0
-        while True:
-            samples, read = src()
-            is_beat = o(samples)
-            if is_beat:
-                this_beat = o.get_last_s()
-                beats.append(this_beat)
-            total_frames += read
-            if read < hop_s:
-                break
-
-        bpms = 60.0 / diff(beats)
-
-        return int(median(bpms))
+                self._say("Bpm[{}]: {}".format(bpm, item_path))
+            else:
+                self._say("Bpm[DRY-MODE][{}]: {}".format(bpm, item_path))
+        else:
+            log.error("Error: bpm=0 was found. Not setting!")
 
     # Plugin version Information
     def show_version_information(self):
