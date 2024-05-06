@@ -22,7 +22,7 @@ with open(ver_path) as ver_file:
 # Setup
 setup(
     name='beets-bpmanalyser',
-    # version=main_ns['__version__'],
+    version=main_ns['__version__'],
     description='A beets plugin for analysing tempo of songs and storing it in the bpm tag.',
     author='Adam Jakab',
     author_email='adam@jakab.pro',
