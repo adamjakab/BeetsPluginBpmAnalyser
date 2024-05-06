@@ -1,11 +1,11 @@
 name: Test and Release
 
 on:
-  push
+  push:
     branches:
-      - 'master'
+      - "master"
     tags:
-        - 'v*'
+      - "v*"
 
 jobs:
   test_and_release:
