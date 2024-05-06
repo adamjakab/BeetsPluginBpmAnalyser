@@ -6,31 +6,27 @@
 #
 # References: https://docs.python.org/3/library/unittest.html
 #
-import json
 import os
 import shutil
 import sys
 import tempfile
 from contextlib import contextmanager
-from random import randint
 from unittest import TestCase
 
 import beets
-import six
-import yaml
+# import six
+# import yaml
 from beets import logging
 from beets import plugins
 from beets import ui
 from beets import util
-from beets.library import Item
+# from beets.library import Item
 # from beets.mediafile import MediaFile
 from beets.util import (
-    MoveOperation,
     syspath,
     bytestring_path,
     displayable_path,
 )
-from beets.util.confit import Subview, Dumper
 from six import StringIO
 
 from beetsplug import bpmanalyser
@@ -41,30 +37,28 @@ logging.getLogger('beets').propagate = True
 PLUGIN_NAME = 'bpmanalyser'
 PLUGIN_SHORT_DESCRIPTION = 'analyse your songs for tempo and write it into the bpm tag'
 
+# class LogCapture(logging.Handler):
 
-class LogCapture(logging.Handler):
+#     def __init__(self):
+#         super(LogCapture, self).__init__()
+#         self.messages = []
 
-    def __init__(self):
-        super(LogCapture, self).__init__()
-        self.messages = []
+#     def emit(self, record):
+#         self.messages.append(six.text_type(record.msg))
 
-    def emit(self, record):
-        self.messages.append(six.text_type(record.msg))
-
-
-@contextmanager
-def capture_log(logger='beets', suppress_output=True):
-    capture = LogCapture()
-    log = logging.getLogger(logger)
-    log.propagate = True
-    if suppress_output:
-        # Is this too violent?
-        log.handlers = []
-    log.addHandler(capture)
-    try:
-        yield capture.messages
-    finally:
-        log.removeHandler(capture)
+# @contextmanager
+# def capture_log(logger='beets', suppress_output=True):
+#     capture = LogCapture()
+#     log = logging.getLogger(logger)
+#     log.propagate = True
+#     if suppress_output:
+#         # Is this too violent?
+#         log.handlers = []
+#     log.addHandler(capture)
+#     try:
+#         yield capture.messages
+#     finally:
+#         log.removeHandler(capture)
 
 
 @contextmanager
@@ -112,6 +106,7 @@ def _convert_args(args):
 
 
 class Assertions(object):
+
     def assertIsFile(self: TestCase, path):
         self.assertTrue(os.path.isfile(syspath(path)),
                         msg=u'Path is not a file: {0}'.format(displayable_path(path)))
@@ -214,10 +209,9 @@ class TestHelper(TestCase, Assertions):
     def lib_path(self, path):
         return os.path.join(self.libdir, path.replace(b'/', bytestring_path(os.sep)))
 
-    @staticmethod
-    def _dump_config(cfg: Subview):
-        # print(json.dumps(cfg.get(), indent=4, sort_keys=False))
-        flat = cfg.flatten()
-        print(yaml.dump(flat, Dumper=Dumper, default_flow_style=None, indent=2, width=1000))
-
+    # @staticmethod
+    # def _dump_config(cfg):
+    #     # print(json.dumps(cfg.get(), indent=4, sort_keys=False))
+    #     flat = cfg.flatten()
+    #     print(yaml.dump(flat, Dumper=Dumper, default_flow_style=None, indent=2, width=1000))
 
