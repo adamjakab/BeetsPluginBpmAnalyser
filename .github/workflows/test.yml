@@ -2,7 +2,7 @@ name: Test and Release
 
 on:
   push
-  branch: master
+  branches: master
   tags:
       - 'v*'
 
