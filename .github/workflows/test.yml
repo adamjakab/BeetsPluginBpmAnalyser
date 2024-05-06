@@ -2,8 +2,6 @@ name: Test and Release
 
 on:
   push:
-    branches:
-      - "master"
     tags:
       - "v*"
 
@@ -27,8 +25,9 @@ jobs:
           pytest
       - name: Create Release
         uses: ncipollo/release-action@v1
+        # ref.: https://github.com/ncipollo/release-action
         with:
-          name: "Test release for ${{ github.ref }}"
-          tag: ${{ github.ref }}
+          name: "Test release for ${GITHUB_REF##*/}"
+          #tag: ${{ github.ref }}
           draft: true
           generateReleaseNotes: true
