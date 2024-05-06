@@ -27,7 +27,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          name: Test release for ${{ github.ref }}
+          name: "Test release for ${{ github.ref }}"
           tag: ${{ github.ref }}
           draft: true
           generateReleaseNotes: true
