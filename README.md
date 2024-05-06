@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/adamjakab/BeetsPluginBpmAnalyser.svg?branch=master)](https://travis-ci.org/adamjakab/BeetsPluginBpmAnalyser)
-[![Coverage Status](https://coveralls.io/repos/github/adamjakab/BeetsPluginBpmAnalyser/badge.svg?branch=master)](https://coveralls.io/github/adamjakab/BeetsPluginBpmAnalyser?branch=master)
 [![PyPi](https://img.shields.io/pypi/v/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
