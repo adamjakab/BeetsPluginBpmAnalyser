@@ -1,6 +1,10 @@
 name: Test and Release
 
-on: push
+on:
+  push
+  # branch: master
+  # tags:
+  #     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   test_and_release:
@@ -20,3 +24,10 @@ jobs:
       - name: Test
         run: |
           pytest
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "test release"
+          #tag: v1.4.1
+          draft: true
+          generateReleaseNotes: true
