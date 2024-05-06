@@ -6,13 +6,13 @@ on:
       - "v*"
 
 jobs:
-  test_and_release:
-    name: Test and Release
+  test:
+    name: Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7"]
-        #python-version: ["3.7", "3.10", "3.12"]
+        #python-version: ["3.7"]
+        python-version: ["3.7", "3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python (${{ matrix.python-version }})
@@ -27,6 +27,12 @@ jobs:
       - name: Test
         run: |
           pytest
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: ["test"]
+    steps:
+      - uses: actions/checkout@v4
       - name: Create Release
         uses: ncipollo/release-action@v1
         # ref.: https://github.com/ncipollo/release-action
