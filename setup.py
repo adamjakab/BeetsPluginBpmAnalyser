@@ -31,10 +31,9 @@ setup(
     long_description=README,
     long_description_content_type='text/markdown',
     platforms='ALL',
-
-    include_package_data=True,
     test_suite='test',
-
+    
+    include_package_data=True,
     packages=['beetsplug.bpmanalyser'],
 
     install_requires=[
