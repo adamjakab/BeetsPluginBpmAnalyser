@@ -3,8 +3,8 @@ name: Test and Release
 on: push
 
 jobs:
-  prepare:
-    name: Prepare Environment
+  test_and_release:
+    name: Test and Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,12 +17,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install beets
           pip install pytest nose coverage mock six
-
-  test:
-    name: Run tests
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
       - name: Test
         run: |
           pytest
