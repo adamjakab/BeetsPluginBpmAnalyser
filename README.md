@@ -1,3 +1,4 @@
+[![Test and Release](https://github.com/adamjakab/BeetsPluginBpmAnalyser/actions/workflows/test_and_release.yml/badge.svg)](https://github.com/adamjakab/BeetsPluginBpmAnalyser/actions/workflows/test_and_release.yml)
 [![PyPi](https://img.shields.io/pypi/v/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
