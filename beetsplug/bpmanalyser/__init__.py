@@ -5,6 +5,7 @@
 #  License: See LICENSE.txt
 
 import logging
+import os
 
 from beets.plugins import BeetsPlugin
 from beetsplug.bpmanalyser.command import BpmAnalyserCommand
@@ -33,12 +34,9 @@ class BpmAnalyserPlugin(BeetsPlugin):
         return [BpmAnalyserCommand(self.config)]
 
     def imported(self, session, task):
-        cmd = BpmAnalyserCommand(self.config)
-        # Add BPM for imported items.
-        for item in task.imported_items():
-            if not self.config['force'] and item['bpm'] != 0:
-                item_path = item.get("path").decode("utf-8")
-                log.debug("Skipped. Item({}) has already got BPM: {}".format(item_path, item['bpm']))
-                return
-            else:
-                cmd.runAnalyser(item)
+        BpmAnalyserCommand(self.config).execute_task_on_items(task.imported_items())
+        
+        # Because of this pydub issue(https://github.com/jiaaro/pydub/issues/503) the below is necessary for now
+        # to regain console input (can also use reset) - not sure if Windows is affected
+        if os.name != 'nt':
+            os.system('stty echo')
