@@ -13,10 +13,10 @@ This plugin has a more powerful big brother which does much more than just extra
 The plugin can be installed via:
 
 ```shell script
-$ pip install beets-bpmanalyser
+pip install beets-bpmanalyser
 ```
 
-It has two dependencies: [numpy](https://pypi.org/project/numpy/) and [aubio](https://pypi.org/project/aubio/) both of which will be installed automatically when installing the plugin itself.
+It has three dependencies: [numpy](https://pypi.org/project/numpy/), [aubio](https://pypi.org/project/aubio/) and [pydub](https://pypi.org/project/pydub/) all of which are installed automatically when installing the plugin itself. Pydub is a wrapper library around ffmpeg or libav which are used to convert audio files to a temporary non-compressed (wav) version before running the aubio analysis on the song.
 
 ## Usage
 
@@ -37,12 +37,12 @@ bpmanalyser:
   auto: no
   dry-run: no
   write: yes
-  threads: 2
+  threads: "AUTO"
   force: no
   quiet: no
 ```
 
-You can set the `auto` option if you would like to execute the analysis during import. In this case, the `threads` option is ignored (beets import is already multithreaded).
+By setting the `auto` option to `yes`, the plugin will be run automatically on each new item during import. In this case, the `threads` option is ignored (beets import is already multithreaded).
 
 The other configuration options can also be set from the command line when running the plugin.
 Here are the options explained:
@@ -122,7 +122,7 @@ In any other situation please use the Issue tracker.
 
 ## Acknowledgements
 
-Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to start on this plugin.
+Many thanks to the developers and contributors of the [beets check plugin](https://github.com/geigerzaehler/beets-check). Some structural concepts and best practices were adopted to get started on this plugin.
 
 ## Final Remarks
 
