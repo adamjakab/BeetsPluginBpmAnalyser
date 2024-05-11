@@ -178,6 +178,9 @@ class BpmAnalyserCommand(Subcommand):
             
         self._say("Done.")
     
+    #
+    # Run the external analyser script on a single item
+    #
     def runAnalyser(self, item: Item):
         item_path = item.get("path").decode("utf-8")
         log.debug("Analysing[{0}]...".format(item_path))

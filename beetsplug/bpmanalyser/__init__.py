@@ -33,11 +33,12 @@ class BpmAnalyserPlugin(BeetsPlugin):
         return [BpmAnalyserCommand(self.config)]
 
     def imported(self, session, task):
+        cmd = BpmAnalyserCommand(self.config)
         # Add BPM for imported items.
         for item in task.imported_items():
             if not self.config['force'] and item['bpm'] != 0:
                 item_path = item.get("path").decode("utf-8")
-                log.debug("Skipping item with existing BPM[{0}]...".format(item_path))
+                log.debug("Skipped. Item({}) has already got BPM: {}".format(item_path, item['bpm']))
                 return
             else:
-                BpmAnalyserCommand(self.config).analyse(item)
+                cmd.runAnalyser(item)
