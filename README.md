@@ -42,7 +42,7 @@ bpmanalyser:
   quiet: no
 ```
 
-By setting the `auto` option to `yes`, the plugin will be run automatically on each new item during import. In this case, the `threads` option is ignored (beets import is already multithreaded).
+By setting the `auto` option to `yes`, the plugin will be run automatically on each new item during import.
 
 The other configuration options can also be set from the command line when running the plugin.
 Here are the options explained:
@@ -53,7 +53,7 @@ _-f, --force_ : By default only songs with no bpm value (bpm:0) are analysed. Us
 
 _-w, --write_ : Write the bpm values directly to the media files.
 
-_-t THREADS, --threads=THREADS_: Set the number of processes that can run in parallel. By default it is set to AUTO (`threads: AUTO`) and it will use half of the number of cores of your processor(s) have. You can set this to any number to specify how many concurrent threads you want to run.
+_-t THREADS, --threads=THREADS_: Set the number of processes to run in parallel. By default it is set to AUTO (`threads: AUTO`) and it will use half of the number of cores of your processor(s) have. You can set this to any number to specify how many concurrent threads you want to run.
 
 _-q, --quiet_ : Do not display any output from the command.
 
