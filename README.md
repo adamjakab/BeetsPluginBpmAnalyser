@@ -1,5 +1,6 @@
 [![Test & Release & Deploy](https://github.com/adamjakab/BeetsPluginBpmAnalyser/actions/workflows/test_release_deploy.yml/badge.svg)](https://github.com/adamjakab/BeetsPluginBpmAnalyser/actions/workflows/test_release_deploy.yml)
 [![PyPi](https://img.shields.io/pypi/v/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/beets-bpmanalyser.svg)](https://pypi.org/project/beets-bpmanalyser/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
 # BPM Analyser (Beets Plugin)
